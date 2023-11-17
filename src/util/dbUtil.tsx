@@ -1,6 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import path from "path";
 import { open } from "sqlite";
 import { Database } from "sqlite3";
+path.resolve(__dirname, __filename);
 
 let db: any = null;
 
