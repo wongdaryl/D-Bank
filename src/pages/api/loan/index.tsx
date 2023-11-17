@@ -1,20 +1,17 @@
+import { sql } from "@vercel/postgres";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDB } from "../../../util/dbUtil";
 
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
     if (req.method === "GET") {
-        const db = await getDB();
-
-        const loans = await db.all("SELECT * FROM loan");
+        const loans = (await sql`SELECT * FROM loan`).rows;
 
         for (let i = 0; i < loans.length; i++) {
-            const payments = await db.all(
-                "SELECT * FROM payment WHERE loan_id = ? ORDER BY date ASC",
-                [loans[i].id]
-            );
+            const payments = (
+                await sql`SELECT * FROM payment WHERE loan_id = ${loans[i].id} ORDER BY date ASC`
+            ).rows;
             const {
                 outstandingAmount: outstandingAmount,
                 totalPayments: totalPayments,
@@ -27,21 +24,7 @@ export default async function handler(
         const { userId, amount, currency, startDate, endDate, interestRate } =
             req.body;
 
-        const db = await getDB();
-
-        const insertLoanSql = `INSERT INTO loan(user_id, amount, currency, start_date, end_date, interest_rate, amount_paid, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
-
-        db.run(insertLoanSql, [
-            userId,
-            amount,
-            currency,
-            startDate,
-            endDate,
-            interestRate,
-            0,
-            "pending",
-        ]);
-
+        await sql`INSERT INTO loan(user_id, amount, currency, start_date, end_date, interest_rate, status) VALUES(${userId}, ${amount}, ${currency}, ${startDate}, ${endDate}, ${interestRate}, 'pending')`;
         res.status(201).json({ message: "Loan created successfully" });
     }
 }
@@ -54,7 +37,7 @@ export const calculateOutstanding = (loan: any, payments: any) => {
     } else if (status === "pending") {
         return { outstandingAmount: amount, totalPayments: 0 };
     }
-    
+
     let accruedInterest = 0;
     let totalPayments = 0;
     let prev_date = new Date(start_date);
@@ -80,6 +63,8 @@ export const calculateOutstanding = (loan: any, payments: any) => {
         amount * interest_rate * (daysSinceLastPayment / DAYS_IN_YEAR);
     accruedInterest += interest;
 
-    const outstandingAmount = amount + accruedInterest - totalPayments;
+    // round float to nearest 2 decimal places
+    const outstandingAmount =
+        Math.round((amount + accruedInterest - totalPayments) * 100) / 100;
     return { outstandingAmount, totalPayments };
 };

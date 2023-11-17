@@ -26,6 +26,9 @@ const PaymentModal: React.FC<ModalProps> = ({ isOpen, onClose, loan }) => {
         if (res.status === 201) {
             onClose();
             window.location.reload();
+        } else {
+            const data = await res.json();
+            alert(data.message);
         }
     };
 

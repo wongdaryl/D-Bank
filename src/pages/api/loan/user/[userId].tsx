@@ -1,7 +1,6 @@
 import { sql } from "@vercel/postgres";
 import { NextApiRequest, NextApiResponse } from "next";
 import { calculateOutstanding } from "..";
-import { getDB } from "../../../../util/dbUtil";
 
 export default async function handler(
     req: NextApiRequest,
@@ -12,12 +11,8 @@ export default async function handler(
         res.status(400).json({ message: "Invalid user id" });
         return;
     }
-    const db = await getDB();
 
     if (req.method === "GET") {
-        // const loans = await db.all("SELECT * FROM loan WHERE user_id = ?", [
-        //     userId,
-        // ]);
         const loans = (await sql`SELECT * FROM loan WHERE user_id = ${userId}`)
             .rows;
 
@@ -26,10 +21,6 @@ export default async function handler(
                 await sql`SELECT * FROM payment WHERE loan_id = ${loans[i].id} ORDER BY date ASC`
             ).rows;
 
-            // const payments = await db.all(
-            //     "SELECT * FROM payment WHERE loan_id = ? ORDER BY date ASC",
-            //     [loans[i].id]
-            // );
             const {
                 outstandingAmount: outstandingAmount,
                 totalPayments: totalPayments,

@@ -46,7 +46,7 @@ const Home: NextPage = () => {
     }
 
     return (
-        <div className="p-10 rounded shadow-md bg-white text-black w-4/5 h-4/5">
+        <div className="p-10 rounded shadow-md bg-white text-black w-11/12 h-4/5">
             <div className="flex justify-between">
                 <h1 className="text-3xl font-bold mb-4">Welcome {name}</h1>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-10 px-4 rounded" onClick={handleLogout}>Log out</button>

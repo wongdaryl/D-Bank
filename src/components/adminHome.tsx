@@ -40,8 +40,8 @@ const AdminHome = (props: any) => {
             <table className="table-auto">
                 <thead>
                     <tr>
-                    <th className="px-4 py-2">UserId</th>
-                    <th className="px-4 py-2">Curr</th>
+                        <th className="px-4 py-2">UserId</th>
+                        <th className="px-4 py-2">Curr</th>
                         <th className="px-4 py-2">Amount</th>
                         <th className="px-4 py-2 w-32">Start Date</th>
                         <th className="px-4 py-2 w-32">End Date</th>
@@ -55,18 +55,16 @@ const AdminHome = (props: any) => {
                 <tbody>
                     {loans.map((loan: any) => (
                         <tr key={loan.id}>
-                            <td className="border px-4 py-2">
-                                {loan.user_id}
-                            </td>
+                            <td className="border px-4 py-2">{loan.user_id}</td>
                             <td className="border px-4 py-2">
                                 {loan.currency}
                             </td>
                             <td className="border px-4 py-2">${loan.amount}</td>
                             <td className="border px-4 py-2">
-                                {loan.start_date}
+                                {new Date(loan.start_date).toLocaleDateString()}
                             </td>
                             <td className="border px-4 py-2">
-                                {loan.end_date}
+                                {new Date(loan.end_date).toLocaleDateString()}
                             </td>
                             <td className="border px-4 py-2">
                                 {loan.interest_rate}
