@@ -8,6 +8,7 @@ const UserHome = (props: any) => {
     const [applyLoan, setApplyLoan] = useState(false);
 
     useEffect(() => {
+        if (!props.userId) return;
         const getLoans = async () => {
             const res = await fetch(`/api/loan/user/${props.userId}`, {
                 method: "GET",

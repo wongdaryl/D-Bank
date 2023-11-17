@@ -27,8 +27,6 @@ export default async function handler(
             loans[i].amount_paid = totalPayments;
         }
 
-        console.log(loans);
-
         res.status(200).json(loans);
     }
 }

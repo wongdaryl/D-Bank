@@ -23,7 +23,6 @@ const Loan = (props: any) => {
             });
             if (res.status === 200) {
                 const data = await res.json();
-                console.log(data[0]);
                 setLoan(data[0]);
             }
         };

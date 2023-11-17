@@ -1,11 +1,12 @@
 import path from "path";
 import { open } from "sqlite";
 import { Database } from "sqlite3";
-path.resolve(__dirname, __filename);
+const dir = path.resolve(__dirname);
 
 let db: any = null;
 
 async function openDB() {
+    console.log('dir', dir);
     db = await open({
         filename: "./collection.db",
         driver: Database,

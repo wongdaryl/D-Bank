@@ -11,7 +11,6 @@ const Login: NextPage = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        console.log(username, password);
 
         const res = await fetch("/api/login", {
             method: "POST",
