@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import Link from "next/link";
 import React, { useState } from "react";
 
 const Register: NextPage = () => {
@@ -64,9 +65,9 @@ const Register: NextPage = () => {
                 <div>
                     <p>
                         Already have an account?{" "}
-                        <a href="/login" className="text-blue-500">
+                        <Link href="/login" className="text-blue-500">
                             Login here!
-                        </a>
+                        </Link>
                     </p>
                 </div>
                 <div>

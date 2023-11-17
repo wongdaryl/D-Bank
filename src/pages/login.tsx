@@ -1,6 +1,7 @@
 "use client";
 
 import { NextPage } from "next";
+import Link from "next/link";
 import { useState } from "react";
 
 const Login: NextPage = () => {
@@ -60,9 +61,9 @@ const Login: NextPage = () => {
                     <div>
                         <p>
                             Don&apos;t have an account?{" "}
-                            <a href="/register" className="text-blue-500">
+                            <Link href="/register" className="text-blue-500">
                                 Register here!
-                            </a>
+                            </Link>
                         </p>
                     </div>
                     <div>
