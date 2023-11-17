@@ -1,5 +1,5 @@
+import { sql } from "@vercel/postgres";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDB } from "../../util/dbUtil";
 
 export default async function handler(
     req: NextApiRequest,
@@ -7,13 +7,9 @@ export default async function handler(
 ) {
     const { username, password } = req.body;
 
-    const db = await getDB();
-
-    const user = await db.get(
-        "SELECT * FROM user WHERE username = ? AND password = ?",
-        [username, password]
-    );
-
+    const result =
+        await sql`SELECT * FROM "user" WHERE username = ${username} AND password = ${password}`;
+    const user = result.rows[0];
     if (user) {
         res.status(200).json({ message: "Login successful", user });
     } else {
