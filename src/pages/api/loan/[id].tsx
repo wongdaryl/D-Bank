@@ -30,8 +30,6 @@ export default async function handler(
         }
 
         const loan = loans[0];
-        console.log("userId", userId);
-        console.log("loan.user_id", loan.user_id);
         if (role !== "admin" && loan.user_id !== parseInt(userId)) {
             res.status(403).json({ message: "Unauthorized" });
             return;

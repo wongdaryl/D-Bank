@@ -8,7 +8,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<Data>
 ) {
-    const { name, username, password } = req.body;
+    const { name, username, password, dateOfBirth, monthlyIncome } = req.body;
 
     const result = await sql`SELECT * FROM "user" WHERE username = ${username}`;
 
@@ -18,7 +18,7 @@ export default async function handler(
         return;
     }
 
-    await sql`INSERT INTO "user" (name, username, password, role) VALUES (${name}, ${username}, ${password}, 'user')`;
+    await sql`INSERT INTO "user" (name, username, password, date_of_birth, monthly_income, role) VALUES (${name}, ${username}, ${password}, ${dateOfBirth}, ${monthlyIncome},'user')`;
 
     res.status(201).json({ message: "Registration successful" });
 }

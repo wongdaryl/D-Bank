@@ -69,7 +69,6 @@ export default async function handler(
             totalPayments: totalPayments,
         } = calculateOutstanding(loan, payments);
 
-        console.log(amount, outstandingAmount);
         if (amount > outstandingAmount) {
             res.status(400).json({ message: "Payment amount too large" });
             return;

@@ -1,6 +1,7 @@
 "use client";
 
 import PaymentModal from "@/components/paymentModal";
+import PaymentTable from "@/components/paymentTable";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { InfinitySpin } from "react-loader-spinner";
@@ -8,16 +9,28 @@ import { InfinitySpin } from "react-loader-spinner";
 const Loan = (props: any) => {
     const router = useRouter();
     const { id } = router.query;
+    const [userId, setUserId] = useState<string | null>("");
+    const [role, setRole] = useState<string | null>("");
 
     const [loanLoading, setLoanLoading] = useState(false);
     const [paymentLoading, setPaymentLoading] = useState(false);
 
+    const [userProfile, setUserProfile] = useState<any>({});
     const [loan, setLoan] = useState<any>({});
     const [payments, setPayments] = useState([]);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        if (!id) return;
+        if (
+            !id ||
+            sessionStorage.getItem("userId") === null ||
+            sessionStorage.getItem("role") === null
+        ) {
+            return;
+        }
+        setUserId(sessionStorage.getItem("userId"));
+        setRole(sessionStorage.getItem("role"));
+
         const headers: any = {
             "Content-Type": "application/json",
             "x-user-id": sessionStorage.getItem("userId"),
@@ -59,6 +72,46 @@ const Loan = (props: any) => {
         getPayments();
     }, [id, props]);
 
+    useEffect(() => {
+        if (!loan || role !== "admin") return;
+
+        const getUserProfile = async () => {
+            const headers: any = {
+                "Content-Type": "application/json",
+                "x-user-id": userId,
+                "x-user-role": role,
+            };
+            const res = await fetch(`/api/user/${loan.user_id}`, {
+                method: "GET",
+                headers: headers,
+            });
+            if (res.status === 200) {
+                const data = await res.json();
+                setUserProfile(data);
+            }
+        };
+        getUserProfile();
+    }, [loan, role, userId]);
+
+    const handleAdminAction = async (status: string) => {
+        const headers: any = {
+            "Content-Type": "application/json",
+            "x-user-id": userId,
+            "x-user-role": role,
+        };
+        const res = await fetch(`/api/loan/admin/${id}`, {
+            method: "PATCH",
+            headers: headers,
+            body: JSON.stringify({ status: status }),
+        });
+        if (res.status === 200) {
+            window.location.reload();
+        } else {
+            const data = await res.json();
+            alert(data.message);
+        }
+    };
+
     return (
         <div className="p-10 rounded shadow-md bg-white text-black w-4/5 h-4/5 space-y-5">
             <button
@@ -69,9 +122,47 @@ const Loan = (props: any) => {
             >
                 Back
             </button>
-            <h1 className="text-2xl font-bold mb-4">Loan ID: {id} Details</h1>
+
+            {role === "admin" && (
+                <div>
+                    <h1 className="text-2xl font-bold mb-4">
+                        User ID: {loan.user_id} Profile
+                    </h1>
+
+                    <table className="table-auto">
+                        <thead>
+                            <tr>
+                                <th className="px-4 py-2">Name</th>
+                                <th className="px-4 py-2">Username</th>
+                                <th className="px-4 py-2">Date of Birth</th>
+                                <th className="px-4 py-2">Monthly Income</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="border px-4 py-2">
+                                    {userProfile.name}
+                                </td>
+                                <td className="border px-4 py-2">
+                                    {userProfile.username}
+                                </td>
+                                <td className="border px-4 py-2">
+                                    {new Date(
+                                        userProfile.date_of_birth
+                                    ).toLocaleDateString()}
+                                </td>
+                                <td className="border px-4 py-2">
+                                    ${userProfile.monthly_income}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            <h1 className="text-2xl font-bold">Loan ID: {id} Details</h1>
             {loanLoading ? (
-                <div className="flex justify-center items-center mt-14">
+                <div className="flex justify-center items-center">
                     <InfinitySpin color="blue" />
                 </div>
             ) : (
@@ -79,9 +170,10 @@ const Loan = (props: any) => {
                     <thead>
                         <tr>
                             <th className="px-4 py-2">Curr</th>
+                            <th className="px-4 py-2">Type</th>
                             <th className="px-4 py-2">Amount</th>
-                            <th className="px-4 py-2 w-32">Start Date</th>
-                            <th className="px-4 py-2 w-32">End Date</th>
+                            <th className="px-4 py-2">Start Date</th>
+                            <th className="px-4 py-2">End Date</th>
                             <th className="px-4 py-2">Interest Rate</th>
                             <th className="px-4 py-2">Paid</th>
                             <th className="px-4 py-2">Outstanding</th>
@@ -91,33 +183,44 @@ const Loan = (props: any) => {
                     <tbody>
                         <tr>
                             <td className="border px-4 py-2">
-                                {loan["currency"]}
+                                {loan.currency}
+                            </td>
+                            <td className="border px-4 py-2">{loan.type}</td>
+                            <td className="border px-4 py-2">${loan.amount}</td>
+                            <td className="border px-4 py-2">
+                                {new Date(loan.start_date).toLocaleDateString()}
                             </td>
                             <td className="border px-4 py-2">
-                                ${loan["amount"]}
+                                {new Date(loan.end_date).toLocaleDateString()}
                             </td>
                             <td className="border px-4 py-2">
-                                {new Date(
-                                    loan["start_date"]
-                                ).toLocaleDateString()}
+                                {loan.interest_rate}
                             </td>
                             <td className="border px-4 py-2">
-                                {new Date(
-                                    loan["end_date"]
-                                ).toLocaleDateString()}
+                                ${loan.amount_paid}
                             </td>
                             <td className="border px-4 py-2">
-                                {loan["interest_rate"]}
+                                ${loan.outstanding_amount}
                             </td>
-                            <td className="border px-4 py-2">
-                                ${loan["amount_paid"]}
-                            </td>
-                            <td className="border px-4 py-2">
-                                ${loan["outstanding_amount"]}
-                            </td>
-                            <td className="border px-4 py-2">
-                                {loan["status"]}
-                            </td>
+                            {loan.status === "active" ? (
+                                <td className="border px-4 py-2 text-green-600">
+                                    {loan.status}
+                                </td>
+                            ) : loan.status === "rejected" ? (
+                                <td className="border px-4 py-2 text-red-500">
+                                    {loan.status}
+                                </td>
+                            ) : loan.status === "pending" ? (
+                                <td className="border px-4 py-2 text-yellow-600">
+                                    {loan.status}
+                                </td>
+                            ) : (
+                                loan.status === "paid" && (
+                                    <td className="border px-4 py-2 text-orange-600">
+                                        {loan.status}
+                                    </td>
+                                )
+                            )}
                         </tr>
                     </tbody>
                 </table>
@@ -125,7 +228,26 @@ const Loan = (props: any) => {
 
             {loanLoading ? (
                 <></>
-            ) : loan["status"] === "active" ? (
+            ) : role === "admin" && loan["status"] === "pending" ? (
+                <div className="flex space-x-4">
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => {
+                            handleAdminAction("active");
+                        }}
+                    >
+                        Approve
+                    </button>
+                    <button
+                        className="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => {
+                            handleAdminAction("rejected");
+                        }}
+                    >
+                        Reject
+                    </button>
+                </div>
+            ) : role === "user" && loan["status"] === "active" ? (
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     onClick={() => {
@@ -152,36 +274,7 @@ const Loan = (props: any) => {
                 ) : payments.length === 0 ? (
                     <div>No payments found.</div>
                 ) : (
-                    <table className="table-auto">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2">ID</th>
-                                <th className="px-4 py-2">Loan ID</th>
-                                <th className="px-4 py-2">Amount</th>
-                                <th className="px-4 py-2">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {payments.map((payment: any) => (
-                                <tr key={payment.id}>
-                                    <td className="border px-4 py-2">
-                                        {payment.id}
-                                    </td>
-                                    <td className="border px-4 py-2">
-                                        {payment.loan_id}
-                                    </td>
-                                    <td className="border px-4 py-2">
-                                        ${payment.amount}
-                                    </td>
-                                    <td className="border px-4 py-2">
-                                        {new Date(
-                                            payment.date
-                                        ).toLocaleDateString()}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <PaymentTable payments={payments} />
                 )}
             </div>
             <PaymentModal

@@ -21,10 +21,17 @@ export default async function handler(
         }
         res.status(200).json(loans);
     } else if (req.method === "POST") {
-        const { userId, amount, currency, startDate, endDate, interestRate } =
-            req.body;
+        const {
+            userId,
+            type,
+            amount,
+            currency,
+            startDate,
+            endDate,
+            interestRate,
+        } = req.body;
 
-        await sql`INSERT INTO loan(user_id, amount, currency, start_date, end_date, interest_rate, status) VALUES(${userId}, ${amount}, ${currency}, ${startDate}, ${endDate}, ${interestRate}, 'pending')`;
+        await sql`INSERT INTO loan(user_id, type, amount, currency, start_date, end_date, interest_rate, status) VALUES(${userId}, ${type}, ${amount}, ${currency}, ${startDate}, ${endDate}, ${interestRate}, 'pending')`;
         res.status(201).json({ message: "Loan created successfully" });
     }
 }

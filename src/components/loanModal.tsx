@@ -8,8 +8,11 @@ interface ModalProps {
 
 const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
     const [amount, setAmount] = React.useState(0);
+    const [type, setType] = React.useState("Car");
     const [currency, setCurrency] = React.useState("SGD");
-    const [startDate, setStartDate] = React.useState("");
+    const [startDate, setStartDate] = React.useState(
+        new Date().toISOString().split("T")[0]
+    );
     const [endDate, setEndDate] = React.useState("");
     const [interestRate, setInterestRate] = React.useState(0);
 
@@ -25,8 +28,7 @@ const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
         } else if (startDate < new Date().toISOString().split("T")[0]) {
             alert("Start date cannot be before today");
             return;
-        }
-        else if (interestRate < 0) {
+        } else if (interestRate < 0) {
             alert("Interest rate cannot be negative");
             return;
         } else if (amount <= 0) {
@@ -41,6 +43,7 @@ const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
             },
             body: JSON.stringify({
                 userId: userId,
+                type: type,
                 amount: amount,
                 currency: currency,
                 startDate: startDate,
@@ -58,7 +61,7 @@ const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-opacity-25 bg-black">
             <div className="relative w-3/4 mx-auto my-6">
                 <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
-                    <div className="flex items-start justify-between p-5 border-b border-solid rounded-t">
+                    <div className="flex items-start justify-between p-8 border-b border-solid rounded-t">
                         <h3 className="text-3xl font-semibold">
                             Apply for a new loan
                         </h3>
@@ -70,7 +73,7 @@ const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
                         </button>
                     </div>
 
-                    <div className="relative p-6 flex-auto space-y-4">
+                    <div className="relative p-8 flex-auto space-y-4">
                         <div className="flex space-x-4 align-middle mb-2">
                             <label htmlFor="amount" className="block w-1/5">
                                 Amount:
@@ -84,6 +87,23 @@ const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
                                 }
                                 className="w-full px-3 py-2 border border-gray-300 rounded"
                             />
+                        </div>
+
+                        <div className="flex space-x-4 align-middle mb-2">
+                            <label htmlFor="type" className="block w-1/5">
+                                Type:
+                            </label>
+                            <select
+                                id="type"
+                                value={type}
+                                onChange={(e) => setType(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded"
+                            >
+                                <option value="car">Car</option>
+                                <option value="home">Home</option>
+                                <option value="business">Business</option>
+                                <option value="personal">Personal</option>
+                            </select>
                         </div>
 
                         <div className="flex space-x-4 align-middle mb-2">
@@ -129,7 +149,10 @@ const LoanModal: React.FC<ModalProps> = ({ isOpen, onClose, userId }) => {
                         </div>
 
                         <div className="flex space-x-4 align-middle mb-2">
-                            <label htmlFor="interestRate" className="block w-1/5">
+                            <label
+                                htmlFor="interestRate"
+                                className="block w-1/5"
+                            >
                                 Interest Rate:
                             </label>
                             <input
