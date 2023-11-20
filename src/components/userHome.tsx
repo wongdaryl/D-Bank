@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { InfinitySpin } from "react-loader-spinner";
+import EditProfileModal from "./editProfileModal";
 import LoanModal from "./loanModal";
 import LoanTable from "./loanTable";
-import EditProfileModal from "./editProfileModal";
 
 const UserHome = (props: any) => {
     const [loans, setLoans] = useState([]);
     const [editProfile, setEditProfile] = useState(false);
     const [applyLoan, setApplyLoan] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [currentTotal, setCurrentTotal] = useState(0);
 
     useEffect(() => {
         if (!props.userId) return;
@@ -30,6 +31,15 @@ const UserHome = (props: any) => {
         };
         getLoans();
     }, [props]);
+
+    useEffect(() => {
+        if (!loans) return;
+        let total = 0;
+        loans.forEach((loan: any) => {
+            total += loan.outstanding_amount;
+        });
+        setCurrentTotal(total);
+    }, [loans]);
 
     return (
         <div>
@@ -51,6 +61,12 @@ const UserHome = (props: any) => {
                         <tr>
                             <th className="px-4 py-2">Date of Birth</th>
                             <th className="px-4 py-2">Monthly Income</th>
+                            <th className="px-4 py-2">
+                                Number of Active Loans
+                            </th>
+                            <th className="px-4 py-2">
+                                Total Oustanding Amount
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,6 +78,17 @@ const UserHome = (props: any) => {
                             </td>
                             <td className="border px-4 py-2">
                                 ${props?.user.monthly_income}
+                            </td>
+                            <td className="border px-4 py-2">
+                                {loading
+                                    ? "..."
+                                    : loans.filter(
+                                          (loan: any) =>
+                                              loan?.status === "active"
+                                      ).length}
+                            </td>
+                            <td className="border px-4 py-2">
+                                {loading ? "..." : "$" + currentTotal}
                             </td>
                         </tr>
                     </tbody>
@@ -96,7 +123,7 @@ const UserHome = (props: any) => {
                 onClose={() => setApplyLoan(false)}
                 userId={props.userId}
             />
-            <EditProfileModal 
+            <EditProfileModal
                 isOpen={editProfile}
                 onClose={() => setEditProfile(false)}
                 user={props?.user}
