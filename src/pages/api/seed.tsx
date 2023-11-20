@@ -11,12 +11,14 @@ export default async function handler(
         name TEXT,
         username TEXT,
         password TEXT,
-        role TEXT
+        role TEXT,
+        monthly_income DOUBLE PRECISION,
+        date_of_birth DATE
     );`;
 
     const values1 = [
-        [1, "Bobby Tan", "bobbytan", "password", "user"],
-        [2, "Bobby Admin", "admin", "admin", "admin"],
+        [1, "Bobby Tan", "bobbytan", "password", "user", 5000, "1999-27-11"],
+        [2, "Bobby Admin", "admin", "admin", "admin", 5000, "1999-27-11"],
     ];
 
     for (const value of values1) {
@@ -32,13 +34,14 @@ export default async function handler(
         end_date DATE,
         interest_rate DOUBLE PRECISION,
         status TEXT,
+        type TEXT,
         FOREIGN KEY (user_id) REFERENCES "user" (id)
     );`;
 
     const values2 = [
-        [1, 1, 1000, "SGD", "2023-10-01", "2024-01-01", 0.05, "active"],
-        [2, 1, 2000, "SGD", "2023-10-01", "2024-01-01", 0.05, "active"],
-        [3, 1, 1000, "SGD", "2023-12-01", "2024-03-01", 0.05, "pending"],
+        [1, 1, 1000, "SGD", "2023-10-01", "2024-01-01", 0.05, "active", "car"],
+        [2, 1, 2000, "SGD", "2023-10-01", "2024-01-01", 0.05, "active", "home"],
+        [3, 1, 1000, "SGD", "2023-12-01", "2024-03-01", 0.05, "pending", "business"],
     ];
 
     for (const value of values2) {
