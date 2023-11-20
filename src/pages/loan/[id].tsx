@@ -12,6 +12,7 @@ const Loan = (props: any) => {
     const [userId, setUserId] = useState<string | null>("");
     const [role, setRole] = useState<string | null>("");
 
+    const [userLoading, setUserLoading] = useState(false);
     const [loanLoading, setLoanLoading] = useState(false);
     const [paymentLoading, setPaymentLoading] = useState(false);
 
@@ -74,6 +75,7 @@ const Loan = (props: any) => {
 
     useEffect(() => {
         if (!loan || role !== "admin") return;
+        setUserLoading(true);
 
         const getUserProfile = async () => {
             const headers: any = {
@@ -81,13 +83,14 @@ const Loan = (props: any) => {
                 "x-user-id": userId,
                 "x-user-role": role,
             };
-            const res = await fetch(`/api/user/${loan.user_id}`, {
+            const res = await fetch(`/api/user/profile/${loan.user_id}`, {
                 method: "GET",
                 headers: headers,
             });
             if (res.status === 200) {
                 const data = await res.json();
                 setUserProfile(data);
+                setUserLoading(false);
             }
         };
         getUserProfile();
@@ -129,34 +132,70 @@ const Loan = (props: any) => {
                         User ID: {loan.user_id} Profile
                     </h1>
 
-                    <table className="table-auto">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2">Name</th>
-                                <th className="px-4 py-2">Username</th>
-                                <th className="px-4 py-2">Date of Birth</th>
-                                <th className="px-4 py-2">Monthly Income</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td className="border px-4 py-2">
-                                    {userProfile.name}
-                                </td>
-                                <td className="border px-4 py-2">
-                                    {userProfile.username}
-                                </td>
-                                <td className="border px-4 py-2">
-                                    {new Date(
-                                        userProfile.date_of_birth
-                                    ).toLocaleDateString()}
-                                </td>
-                                <td className="border px-4 py-2">
-                                    ${userProfile.monthly_income}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    {userLoading ? (
+                        <div className="flex justify-center items-center">
+                            <InfinitySpin color="blue" />
+                        </div>
+                    ) : (
+                        <table className="table-auto">
+                            <thead>
+                                <tr>
+                                    <th className="px-4 py-2">Name</th>
+                                    <th className="px-4 py-2">Username</th>
+                                    <th className="px-4 py-2">Date of Birth</th>
+                                    <th className="px-4 py-2">
+                                        Monthly Income
+                                    </th>
+                                    <th className="px-4 py-2">
+                                        Num Active Loans
+                                    </th>
+                                    <th className="px-4 py-2">
+                                        Total Oustanding
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td className="border px-4 py-2">
+                                        {userProfile.name}
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        {userProfile.username}
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        {new Date(
+                                            userProfile.date_of_birth
+                                        ).toLocaleDateString()}
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        ${userProfile.monthly_income}
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        {
+                                            userProfile?.loans?.filter(
+                                                (loan: any) =>
+                                                    loan.status === "active"
+                                            ).length
+                                        }
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        $
+                                        {userProfile?.loans
+                                            ?.filter(
+                                                (loan: any) =>
+                                                    loan.status === "active"
+                                            )
+                                            .reduce(
+                                                (amt: number, loan: any) =>
+                                                    amt +
+                                                    loan.outstanding_amount,
+                                                0
+                                            )}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             )}
 
