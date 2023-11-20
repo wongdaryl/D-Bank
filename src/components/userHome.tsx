@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { InfinitySpin } from "react-loader-spinner";
 import LoanModal from "./loanModal";
 import LoanTable from "./loanTable";
+import EditProfileModal from "./editProfileModal";
 
 const UserHome = (props: any) => {
     const [loans, setLoans] = useState([]);
+    const [editProfile, setEditProfile] = useState(false);
     const [applyLoan, setApplyLoan] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -36,7 +38,7 @@ const UserHome = (props: any) => {
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-10 px-4 rounded"
                     onClick={() => {
-                        // setApplyLoan(true);
+                        setEditProfile(true);
                     }}
                 >
                     Edit
@@ -93,6 +95,11 @@ const UserHome = (props: any) => {
                 isOpen={applyLoan}
                 onClose={() => setApplyLoan(false)}
                 userId={props.userId}
+            />
+            <EditProfileModal 
+                isOpen={editProfile}
+                onClose={() => setEditProfile(false)}
+                user={props?.user}
             />
         </div>
     );

@@ -29,5 +29,13 @@ export default async function handler(
         const result = await sql`SELECT * FROM "user" WHERE id = ${userId}`;
         const user = result.rows[0];
         res.status(200).json(user);
+    } else if (req.method === "PATCH") {
+        if (fromUserRole !== "admin" && fromUserId !== userId) {
+            res.status(403).json({ message: "Unauthorized" });
+            return;
+        }
+        const { name, dateOfBirth, monthlyIncome } = req.body;
+        await sql`UPDATE "user" SET name = ${name}, date_of_birth = ${dateOfBirth}, monthly_income = ${monthlyIncome} WHERE id = ${userId}`;
+        res.status(200).json({ message: "User updated successfully" });
     }
 }
